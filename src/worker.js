@@ -1863,7 +1863,7 @@ const getHTMLContent = (title) => `
         }
         
         .form-select {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(30, 30, 50, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
             border-radius: 10px;
@@ -2892,16 +2892,23 @@ const getHTMLContent = (title) => `
                 if (ti) ti.textContent = '\u2600\ufe0f';
             }
             
-            // 主题切换
-            const themeBtn = document.getElementById('themeToggleBtn');
-            if (themeBtn) themeBtn.addEventListener('click', function() {
-                console.log('Theme toggle clicked! Current theme:', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-                document.body.classList.toggle('light-theme');
-                console.log('After toggle:', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-                const isLight = document.body.classList.contains('light-theme');
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-                const icon = document.getElementById('themeIcon');
-                if (icon) icon.textContent = isLight ? '\u2600\ufe0f' : '\u{1f319}';
+            // 主题切换 - 最简版本
+            var themeBtn = document.getElementById('themeToggleBtn');
+            var themeIcon = document.getElementById('themeIcon');
+            try {
+                var savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-theme');
+                    if (themeIcon) themeIcon.textContent = '☀️';
+                }
+            } catch(e) {}
+            if (themeBtn) {
+                themeBtn.onclick = function() {
+                    var isLight = document.body.classList.toggle('light-theme');
+                    try { localStorage.setItem('theme', isLight ? 'light' : 'dark'); } catch(e) {}
+                    if (themeIcon) themeIcon.textContent = isLight ? '☀️' : '🌙';
+                };
+            }';
             });
             
             // 设置事件监听器
@@ -5847,7 +5854,7 @@ async function handleRequest(request) {
       const response = new Response(htmlContent, {
         headers: {
           'Content-Type': 'text/html;charset=UTF-8',
-          'Cache-Control': 'no-cache, must-revalidate',
+          'Cache-Control': 'no-store',
         },
       });
       
@@ -7784,7 +7791,7 @@ function getSetupHTML() {
             }
         }
     </script>
-<div style="position:fixed;bottom:0;right:0;background:rgba(0,0,0,0.7);color:#0f0;padding:2px 8px;font-size:11px;z-index:9999;border-radius:4px 0 0 0;">v20261101c</div>
+<div style="position:fixed;bottom:0;right:0;background:rgba(0,0,0,0.7);color:#0f0;padding:2px 8px;font-size:11px;z-index:9999;border-radius:4px 0 0 0;">v20261101d</div>
 </body>
 </html>`;
 }
