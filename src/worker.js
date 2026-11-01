@@ -2206,6 +2206,41 @@ const getHTMLContent = (title) => `
         /* 按钮组中的 outline 按钮文字 */
         body.light-theme .btn-outline-info [style*="color: white"] { color: #0d6efd !important; }
         body.light-theme .btn-outline-light [style*="color: white"] { color: #333 !important; }
+
+        /* === 修复：覆盖 CSS 规则中的 color: white（非内联样式） === */
+        body.light-theme .navbar-brand i,
+        body.light-theme .domain-header h5,
+        body.light-theme .progress-percent-text,
+        body.light-theme .domain-actions a.btn,
+        body.light-theme .domain-actions a.btn:hover,
+        body.light-theme .test-notify-btn,
+        body.light-theme .test-notify-btn:hover,
+        body.light-theme .card-text strong,
+        body.light-theme .form-label,
+        body.light-theme .form-control:focus,
+        body.light-theme .form-select option,
+        body.light-theme .btn-outline-primary:hover,
+        body.light-theme .btn-outline-success:hover,
+        body.light-theme .btn-outline-danger:hover,
+        body.light-theme .btn-outline-info:hover,
+        body.light-theme .btn-logout:hover,
+        body.light-theme .page-title,
+        body.light-theme .category-title,
+        body.light-theme .modal-header,
+        body.light-theme .modal-body,
+        body.light-theme .form-control,
+        body.light-theme .form-select,
+        body.light-theme .navbar-brand,
+        body.light-theme .card-text,
+        body.light-theme .domain-title,
+        body.light-theme .domain-text {
+            color: #333 !important;
+        }
+        /* placeholder 也改深色 */
+        body.light-theme .form-control::placeholder { color: rgba(0,0,0,0.5) !important; }
+        /* badge 文字保持各自颜色，但确保可读 */
+        body.light-theme .domain-status .badge { color: #fff !important; }
+        body.light-theme .badge .iconfont { color: #fff !important; }
     </style>
 </head>
 <body>
