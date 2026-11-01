@@ -14,12 +14,5 @@ id = "a0aa08405b4849859042f93c7e7e181e"
 [triggers]
 crons = ["0 0 * * *"]
 
-# 环境变量（可选，也可在 Cloudflare 控制台设置）
-[vars]
-SITE_NAME = "域名监控系统"
-# TOKEN = ""          # 登录密码，留空默认 "domain"
-# TG_TOKEN = ""       # Telegram Bot Token
-# TG_ID = ""          # Telegram Chat ID
-# LOGO_URL = ""       # 自定义 Logo URL
-# BACKGROUND_URL = "" # 自定义背景图 URL
-# MOBILE_BACKGROUND_URL = "" # 移动端背景图 URL
+# 注意：环境变量（TOKEN、TG_TOKEN、TG_ID、SITE_NAME、BACKGROUND_URL 等）
+# 请在 Cloudflare 控制台设置，不要写在这里，否则 deploy 会覆盖控制台的值
