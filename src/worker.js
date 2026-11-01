@@ -2649,6 +2649,17 @@ const getHTMLContent = (title) => `
           return result;
         }
         
+        // HTML转义函数，防止XSS攻击
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+        
         // 格式化日期函数
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -3970,10 +3981,6 @@ const getHTMLContent = (title) => `
                     targetColumn.appendChild(domainCard);
                     } catch (cardErr) {
                         console.error('创建域名卡片失败:', domain?.name, cardErr.message, cardErr.stack);
-                        const errCard = document.createElement('div');
-                        errCard.className = 'alert alert-danger';
-                        errCard.textContent = '卡片创建失败: ' + (domain?.name || 'unknown') + ': ' + cardErr.message;
-                        targetColumn.appendChild(errCard);
                     }
                 });
             };
