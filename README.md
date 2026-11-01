@@ -164,3 +164,5 @@ yuming/
 ## 📄 License
 
 MIT
+
+<!-- auto-deploy test: 2026-11-01T11:12:43Z -->
