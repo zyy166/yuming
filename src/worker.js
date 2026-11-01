@@ -2050,6 +2050,129 @@ const getHTMLContent = (title) => `
         .domain-column {
             min-height: 200px;
         }
+        
+        /* ===== 浅色主题样式 ===== */
+        body.light-theme {
+            background-image: none !important;
+            background-color: #f0f2f5 !important;
+        }
+        body.light-theme::after {
+            display: none !important;
+        }
+        body.light-theme .navbar {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        }
+        body.light-theme .navbar-brand,
+        body.light-theme .navbar-actions .btn span,
+        body.light-theme .navbar-actions .btn i {
+            color: #333 !important;
+        }
+        body.light-theme .page-header {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        }
+        body.light-theme .page-title {
+            color: #333 !important;
+        }
+        body.light-theme .page-title .count-badge {
+            color: #666 !important;
+        }
+        body.light-theme .card {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        }
+        body.light-theme .card-header {
+            background-color: rgba(0, 0, 0, 0.03) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+        body.light-theme .domain-title,
+        body.light-theme .domain-text,
+        body.light-theme .card-text,
+        body.light-theme .text-white,
+        body.light-theme .text-white-50 {
+            color: #333 !important;
+        }
+        body.light-theme .text-white-50 {
+            color: #888 !important;
+        }
+        body.light-theme .text-info {
+            color: #0d6efd !important;
+        }
+        body.light-theme .stat-card {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid rgba(0, 0, 0, 0.1) !important;
+        }
+        body.light-theme .stat-label {
+            color: #666 !important;
+        }
+        body.light-theme .category-header {
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+        }
+        body.light-theme .category-title {
+            color: #333 !important;
+        }
+        body.light-theme .count-badge {
+            color: #888 !important;
+        }
+        body.light-theme .form-control,
+        body.light-theme .form-select {
+            background-color: #fff !important;
+            color: #333 !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        }
+        body.light-theme .input-group-text {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            color: #666 !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        }
+        body.light-theme .progress-ring-circle-bg {
+            stroke: #e0e0e0 !important;
+        }
+        body.light-theme .progress-percent-text {
+            color: #333 !important;
+        }
+        body.light-theme .modal-content {
+            background-color: #fff !important;
+        }
+        body.light-theme .modal-header,
+        body.light-theme .modal-body,
+        body.light-theme .modal-footer {
+            color: #333 !important;
+        }
+        body.light-theme .alert-info {
+            background-color: #d1ecf1 !important;
+            color: #0c5460 !important;
+        }
+        body.light-theme .alert-warning {
+            background-color: #fff3cd !important;
+            color: #856404 !important;
+        }
+        body.light-theme .alert-danger {
+            background-color: #f8d7da !important;
+            color: #721c24 !important;
+        }
+        body.light-theme .domain-card {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+        }
+        body.light-theme .domain-actions .btn {
+            color: #333 !important;
+        }
+        body.light-theme .domain-actions .btn span {
+            color: #333 !important;
+        }
+        body.light-theme .status-dot.safe {
+            background-color: #28a745 !important;
+        }
+        body.light-theme .status-dot.warning {
+            background-color: #ffc107 !important;
+        }
+        body.light-theme .status-dot.expired {
+            background-color: #dc3545 !important;
+        }
 
         }
     </style>
@@ -2167,7 +2290,7 @@ const getHTMLContent = (title) => `
         </div>
         
         <!-- 搜索与筛选区域 -->
-        <div class="row g-2 mb-3" id="searchFilterBar">
+        <div class="row g-2 mb-3" id="searchFilterBar" style="padding: 0 4px;">
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text"><i class="iconfont icon-search"></i></span>
