@@ -2178,69 +2178,72 @@ const getHTMLContent = (title) => `
             background-color: #dc3545 !important;
         }
 
-        /* === 修复：覆盖内联 color: white 样式（主题切换核心修复） === */
-        /* light-theme 下把所有内联 color: white 改为深色 */
-        body.light-theme [style*="color: white"] { color: #333 !important; }
-        body.light-theme [style*="color: #fff"] { color: #333 !important; }
-        body.light-theme [style*="color: #ffffff"] { color: #333 !important; }
-        /* 但实色按钮上的白色文字保持白色 */
-        body.light-theme .btn-danger [style*="color: white"],
-        body.light-theme .btn-success [style*="color: white"],
-        body.light-theme .btn-primary [style*="color: white"],
-        body.light-theme .btn-info [style*="color: white"],
-        body.light-theme .btn-secondary [style*="color: white"],
-        body.light-theme .btn-warning [style*="color: white"] { color: #fff !important; }
-        /* 去掉白色文字的 text-shadow（浅色背景下阴影很难看） */
-        body.light-theme [style*="text-shadow"] { text-shadow: none !important; }
-        /* stat-value 中的 #fff 也改深色 */
-        body.light-theme .stat-value[style*="color: #fff"] { color: #333 !important; }
-        /* dropdown-item 文字 */
-        body.light-theme .dropdown-item { color: #333 !important; }
-        /* 域名卡片内的白色文字 */
-        body.light-theme .domain-card [style*="color: white"] { color: #333 !important; }
-        body.light-theme .domain-card .card-text,
-        body.light-theme .domain-card .domain-title,
-        body.light-theme .domain-card .domain-text { color: #333 !important; }
-        /* 分类区域白色文字 */
-        body.light-theme .category-header [style*="color: white"] { color: #333 !important; }
-        /* 按钮组中的 outline 按钮文字 */
-        body.light-theme .btn-outline-info [style*="color: white"] { color: #0d6efd !important; }
-        body.light-theme .btn-outline-light [style*="color: white"] { color: #333 !important; }
-
-        /* === 修复：覆盖 CSS 规则中的 color: white（非内联样式） === */
-        body.light-theme .navbar-brand i,
-        body.light-theme .domain-header h5,
-        body.light-theme .progress-percent-text,
-        body.light-theme .domain-actions a.btn,
-        body.light-theme .domain-actions a.btn:hover,
-        body.light-theme .test-notify-btn,
-        body.light-theme .test-notify-btn:hover,
-        body.light-theme .card-text strong,
-        body.light-theme .form-label,
-        body.light-theme .form-control:focus,
-        body.light-theme .form-select option,
-        body.light-theme .btn-outline-primary:hover,
-        body.light-theme .btn-outline-success:hover,
-        body.light-theme .btn-outline-danger:hover,
-        body.light-theme .btn-outline-info:hover,
-        body.light-theme .btn-logout:hover,
-        body.light-theme .page-title,
-        body.light-theme .category-title,
-        body.light-theme .modal-header,
-        body.light-theme .modal-body,
-        body.light-theme .form-control,
-        body.light-theme .form-select,
-        body.light-theme .navbar-brand,
-        body.light-theme .card-text,
-        body.light-theme .domain-title,
-        body.light-theme .domain-text {
+        /* === 核弹方案：一次性覆盖所有白色文字 === */
+        /* 第一步：light-theme 下所有元素默认深色文字 */
+        body.light-theme,
+        body.light-theme * {
             color: #333 !important;
         }
-        /* placeholder 也改深色 */
+        /* 第二步：恢复需要保持彩色的元素 */
+        /* Bootstrap text-* 类保持各自颜色 */
+        body.light-theme .text-success { color: #198754 !important; }
+        body.light-theme .text-danger { color: #dc3545 !important; }
+        body.light-theme .text-warning { color: #b8860b !important; }
+        body.light-theme .text-info { color: #0d6efd !important; }
+        body.light-theme .text-primary { color: #0d6efd !important; }
+        body.light-theme .text-secondary { color: #6c757d !important; }
+        body.light-theme .text-muted { color: #6c757d !important; }
+        /* 链接保持蓝色 */
+        body.light-theme a:not(.btn):not(.navbar-brand):not(.dropdown-item) { color: #0d6efd !important; }
+        body.light-theme .navbar-brand, body.light-theme .navbar-brand i { color: #333 !important; }
+        body.light-theme .dropdown-item { color: #333 !important; }
+        /* 实色按钮上的白色文字保持白色 */
+        body.light-theme .btn-danger,
+        body.light-theme .btn-danger *,
+        body.light-theme .btn-success,
+        body.light-theme .btn-success *,
+        body.light-theme .btn-primary,
+        body.light-theme .btn-primary *,
+        body.light-theme .btn-info,
+        body.light-theme .btn-info *,
+        body.light-theme .btn-warning,
+        body.light-theme .btn-warning *,
+        body.light-theme .btn-secondary,
+        body.light-theme .btn-secondary * { color: #fff !important; }
+        /* outline 按钮文字深色 */
+        body.light-theme .btn-outline-primary { color: #0d6efd !important; }
+        body.light-theme .btn-outline-success { color: #198754 !important; }
+        body.light-theme .btn-outline-danger { color: #dc3545 !important; }
+        body.light-theme .btn-outline-info { color: #0d6efd !important; }
+        body.light-theme .btn-outline-light { color: #333 !important; }
+        body.light-theme .btn-outline-dark { color: #333 !important; }
+        /* badge 保持白色文字（在有颜色的背景上） */
+        body.light-theme .badge,
+        body.light-theme .badge * { color: #fff !important; }
+        /* WHOIS 按钮保持白色文字 */
+        body.light-theme .whois-query-btn,
+        body.light-theme .whois-query-btn *,
+        body.light-theme .whois-clear-btn,
+        body.light-theme .whois-clear-btn * { color: #fff !important; }
+        /* domain-meta 标签保持白色文字（蓝色背景上） */
+        body.light-theme .domain-meta .text-info,
+        body.light-theme .domain-meta [class*="tag-"],
+        body.light-theme .note-preview,
+        body.light-theme .note-preview * { color: #fff !important; }
+        /* stat-value 保持深色 */
+        body.light-theme .stat-value { color: #333 !important; }
+        /* stat-label 灰色 */
+        body.light-theme .stat-label { color: #666 !important; }
+        /* count-badge 灰色 */
+        body.light-theme .count-badge { color: #888 !important; }
+        /* placeholder 深色 */
         body.light-theme .form-control::placeholder { color: rgba(0,0,0,0.5) !important; }
-        /* badge 文字保持各自颜色，但确保可读 */
-        body.light-theme .domain-status .badge { color: #fff !important; }
-        body.light-theme .badge .iconfont { color: #fff !important; }
+        /* 去掉 text-shadow */
+        body.light-theme [style*="text-shadow"] { text-shadow: none !important; }
+        /* sort-option.active 需要深色文字（透明背景） */
+        body.light-theme .sort-option.active { color: #333 !important; }
+        /* progress-percent-text 深色 */
+        body.light-theme .progress-percent-text { color: #333 !important; }
     </style>
 </head>
 <body>
