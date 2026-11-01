@@ -2066,6 +2066,9 @@ const getHTMLContent = (title) => `
                 <span style="color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">${title}</span>
             </span>
             <div class="navbar-actions">
+                <button class="btn btn-outline-light me-2" id="themeToggleBtn" title="切换主题">
+                    <span id="themeIcon">🌙</span>
+                </button>
                 <button class="btn btn-secondary me-3" data-bs-toggle="modal" data-bs-target="#settingsModal">
                     <i class="iconfont icon-gear" style="color: white;"></i> <span style="color: white;">系统设置</span>
                 </button>
@@ -2687,7 +2690,8 @@ const getHTMLContent = (title) => `
             }
             
             // 主题切换
-            document.getElementById('themeToggleBtn').addEventListener('click', function() {
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) themeBtn.addEventListener('click', function() {
                 document.body.classList.toggle('light-theme');
                 const isLight = document.body.classList.contains('light-theme');
                 localStorage.setItem('theme', isLight ? 'light' : 'dark');
