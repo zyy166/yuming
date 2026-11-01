@@ -2178,7 +2178,34 @@ const getHTMLContent = (title) => `
             background-color: #dc3545 !important;
         }
 
-        }
+        /* === 修复：覆盖内联 color: white 样式（主题切换核心修复） === */
+        /* light-theme 下把所有内联 color: white 改为深色 */
+        body.light-theme [style*="color: white"] { color: #333 !important; }
+        body.light-theme [style*="color: #fff"] { color: #333 !important; }
+        body.light-theme [style*="color: #ffffff"] { color: #333 !important; }
+        /* 但实色按钮上的白色文字保持白色 */
+        body.light-theme .btn-danger [style*="color: white"],
+        body.light-theme .btn-success [style*="color: white"],
+        body.light-theme .btn-primary [style*="color: white"],
+        body.light-theme .btn-info [style*="color: white"],
+        body.light-theme .btn-secondary [style*="color: white"],
+        body.light-theme .btn-warning [style*="color: white"] { color: #fff !important; }
+        /* 去掉白色文字的 text-shadow（浅色背景下阴影很难看） */
+        body.light-theme [style*="text-shadow"] { text-shadow: none !important; }
+        /* stat-value 中的 #fff 也改深色 */
+        body.light-theme .stat-value[style*="color: #fff"] { color: #333 !important; }
+        /* dropdown-item 文字 */
+        body.light-theme .dropdown-item { color: #333 !important; }
+        /* 域名卡片内的白色文字 */
+        body.light-theme .domain-card [style*="color: white"] { color: #333 !important; }
+        body.light-theme .domain-card .card-text,
+        body.light-theme .domain-card .domain-title,
+        body.light-theme .domain-card .domain-text { color: #333 !important; }
+        /* 分类区域白色文字 */
+        body.light-theme .category-header [style*="color: white"] { color: #333 !important; }
+        /* 按钮组中的 outline 按钮文字 */
+        body.light-theme .btn-outline-info [style*="color: white"] { color: #0d6efd !important; }
+        body.light-theme .btn-outline-light [style*="color: white"] { color: #333 !important; }
     </style>
 </head>
 <body>
@@ -2254,7 +2281,7 @@ const getHTMLContent = (title) => `
         </div>
         
         <!-- 统计卡片区域 -->
-        <div class="row g-2 mb-3" id="statsContainer" style="display: none; padding: 0 20px;">
+        <div class="row g-2 mb-3" id="statsContainer" style="display: none;">
             <div class="col-md-3 col-sm-6">
                 <div class="card stat-card text-center">
                     <div class="card-body py-2">
@@ -2294,7 +2321,7 @@ const getHTMLContent = (title) => `
         </div>
         
         <!-- 搜索与筛选区域 -->
-        <div class="row g-2 mb-3" id="searchFilterBar" style="padding: 0 20px;">
+        <div class="row g-2 mb-3" id="searchFilterBar">
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text"><i class="iconfont icon-search"></i></span>
@@ -2319,7 +2346,7 @@ const getHTMLContent = (title) => `
             </div>
         </div>
         
-        <div class="row g-1" id="domainListContainer" style="padding: 0 20px;">
+        <div class="row g-1" id="domainListContainer">
             <!-- 域名卡片将通过JavaScript动态生成 -->
             <div class="col-md-6 col-lg-4 domain-column px-1-5" id="column-1"></div>
             <div class="col-md-6 col-lg-4 domain-column px-1-5" id="column-2"></div>
@@ -5780,7 +5807,7 @@ async function handleRequest(request) {
       const response = new Response(htmlContent, {
         headers: {
           'Content-Type': 'text/html;charset=UTF-8',
-          'Cache-Control': 'private, max-age=60',
+          'Cache-Control': 'private, max-age=300',
         },
       });
       
