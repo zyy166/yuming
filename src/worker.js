@@ -1827,7 +1827,7 @@ const getHTMLContent = (title) => `
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 10px 15px;
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(30, 30, 50, 0.9) !important;
             color: white;
         }
         
@@ -1863,16 +1863,23 @@ const getHTMLContent = (title) => `
         }
         
         .form-select {
-            background-color: rgba(30, 30, 50, 0.8);
+            background-color: rgba(30, 30, 50, 0.9) !important;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            color: white !important;
             border-radius: 10px;
+        }
+        
+        .input-group-text {
+            background-color: rgba(30, 30, 50, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white !important;
+            border-radius: 10px 0 0 10px;
         }
         
         .form-select:focus {
             border-color: rgba(255, 255, 255, 0.5);
             box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
-            background-color: rgba(255, 255, 255, 0.25);
+            background-color: rgba(30, 30, 50, 0.95) !important;
         }
         
         /* 添加select下拉选项的样式 */
