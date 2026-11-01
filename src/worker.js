@@ -2056,6 +2056,10 @@ const getHTMLContent = (title) => `
             background-image: none !important;
             background-color: #f0f2f5 !important;
         }
+        body.light-theme::before {
+            background-color: transparent !important;
+            display: none !important;
+        }
         body.light-theme::after {
             display: none !important;
         }
@@ -2250,7 +2254,7 @@ const getHTMLContent = (title) => `
         </div>
         
         <!-- 统计卡片区域 -->
-        <div class="row g-2 mb-3" id="statsContainer" style="display: none;">
+        <div class="row g-2 mb-3" id="statsContainer" style="display: none; padding: 0 20px;">
             <div class="col-md-3 col-sm-6">
                 <div class="card stat-card text-center">
                     <div class="card-body py-2">
@@ -2290,7 +2294,7 @@ const getHTMLContent = (title) => `
         </div>
         
         <!-- 搜索与筛选区域 -->
-        <div class="row g-2 mb-3" id="searchFilterBar" style="padding: 0 4px;">
+        <div class="row g-2 mb-3" id="searchFilterBar" style="padding: 0 20px;">
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text"><i class="iconfont icon-search"></i></span>
@@ -2315,7 +2319,7 @@ const getHTMLContent = (title) => `
             </div>
         </div>
         
-        <div class="row g-1" id="domainListContainer">
+        <div class="row g-1" id="domainListContainer" style="padding: 0 20px;">
             <!-- 域名卡片将通过JavaScript动态生成 -->
             <div class="col-md-6 col-lg-4 domain-column px-1-5" id="column-1"></div>
             <div class="col-md-6 col-lg-4 domain-column px-1-5" id="column-2"></div>
@@ -5776,6 +5780,7 @@ async function handleRequest(request) {
       const response = new Response(htmlContent, {
         headers: {
           'Content-Type': 'text/html;charset=UTF-8',
+          'Cache-Control': 'private, max-age=60',
         },
       });
       
@@ -6914,6 +6919,9 @@ async function sendTelegramMessage(config, message) {
   return await response.json();
 }
 
+// 分级提醒阈值（从大到小）
+const REMINDER_TIERS = [30, 14, 7, 3, 1];
+
 // 设置定时任务，检查即将到期的域名并发送通知
 async function checkExpiringDomains() {
   const domains = await getDomains();
@@ -6944,61 +6952,67 @@ async function checkExpiringDomains() {
     }
   }
   
-  // 筛选出即将到期和已过期的域名
-  const domainsToNotify = domains.filter(domain => {
+  // 分级提醒：对每个域名检查它处于哪个提醒级别
+  // 每个级别只通知一次，记录在 KV: notify_tier:{domainId} = tier
+  const expiringDomains = [];
+  const expiredDomains = [];
+  const tierUpdates = [];
+  
+  for (const domain of domains) {
     const expiryDate = new Date(domain.expiryDate);
     const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
     
-    // 获取该域名的通知设置
     const notifySettings = domain.notifySettings || { useGlobalSettings: true, enabled: true, notifyDays: 30 };
+    if (!notifySettings.enabled) continue;
     
-    // 使用全局设置或域名自己的设置
     const notifyDays = notifySettings.useGlobalSettings ? globalNotifyDays : notifySettings.notifyDays;
     
-    // 通知已过期的域名或即将到期的域名
-    return notifySettings.enabled && (
-      daysLeft <= 0 || // 已过期
-      (daysLeft > 0 && daysLeft <= notifyDays) // 即将到期
-    );
-  });
-  
-  // 将域名分为已过期和即将到期两组
-  const expiredDomains = domainsToNotify.filter(domain => {
-    const expiryDate = new Date(domain.expiryDate);
-    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-    return daysLeft <= 0;
-  });
-  
-  const expiringDomains = domainsToNotify.filter(domain => {
-    const expiryDate = new Date(domain.expiryDate);
-    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-    return daysLeft > 0;
-  });
-  
-  // 如果有即将到期或已过期的域名，发送通知
-  if (expiringDomains.length > 0 || expiredDomains.length > 0) {
-    
-    // 通知去重：检查今天是否已发送过通知
-    const today = new Date().toISOString().split('T')[0];
-    try {
-      const lastNotifyDate = await DOMAIN_MONITOR.get('last_notify_date');
-      if (lastNotifyDate === today) {
-        console.log('今日已发送过到期通知，跳过');
-        return;
+    if (daysLeft <= 0) {
+      // 已过期 - 检查是否已通知过过期
+      const tierKey = 'notify_tier:' + domain.id + ':expired';
+      const alreadyNotified = await DOMAIN_MONITOR.get(tierKey);
+      if (!alreadyNotified) {
+        expiredDomains.push(domain);
+        tierUpdates.push({ key: tierKey, ttl: 86400 * 7 }); // 7天后可以再通知
       }
-    } catch (e) {
-      console.log('检查通知去重失败:', e.message);
+    } else if (daysLeft <= notifyDays) {
+      // 即将到期 - 找到当前所处的提醒级别
+      let currentTier = null;
+      for (const tier of REMINDER_TIERS) {
+        if (daysLeft <= tier && daysLeft > 0) {
+          currentTier = tier;
+          break;
+        }
+      }
+      if (currentTier === null) continue;
+      
+      // 检查这个级别是否已通知过
+      const tierKey = 'notify_tier:' + domain.id + ':' + currentTier;
+      const alreadyNotified = await DOMAIN_MONITOR.get(tierKey);
+      if (!alreadyNotified) {
+        // 标记更高级别也已通知（避免倒退）
+        for (const t of REMINDER_TIERS) {
+          if (t >= currentTier) {
+            tierUpdates.push({ key: 'notify_tier:' + domain.id + ':' + t, ttl: 86400 * 30 });
+          }
+        }
+        expiringDomains.push(domain);
+      }
     }
-    
+  }
+  
+  // 如果有需要通知的域名
+  if (expiringDomains.length > 0 || expiredDomains.length > 0) {
     // 如果启用了Telegram通知，则发送通知
     if (telegramConfig.enabled && 
         ((telegramConfig.botToken || typeof TG_TOKEN !== 'undefined') && 
          (telegramConfig.chatId || typeof TG_ID !== 'undefined'))) {
       try {
-        // 发送合并的域名通知
         await sendCombinedDomainsNotification(telegramConfig, expiringDomains, expiredDomains);
-        // 记录今日已发送
-        await DOMAIN_MONITOR.put('last_notify_date', today);
+        // 记录所有 tier 标记
+        for (const update of tierUpdates) {
+          await DOMAIN_MONITOR.put(update.key, '1', { expirationTtl: update.ttl });
+        }
       } catch (error) {
         console.log('Telegram通知发送失败:', error.message);
       }

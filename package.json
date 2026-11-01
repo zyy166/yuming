@@ -10,7 +10,7 @@
     "kv:create": "wrangler kv namespace create DOMAIN_MONITOR"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.114.17"
   },
   "keywords": [
     "cloudflare-workers",
