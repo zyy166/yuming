@@ -2884,14 +2884,6 @@ const getHTMLContent = (title) => `
         };
         
         document.addEventListener('DOMContentLoaded', () => {
-            // 初始化主题
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-theme');
-                const ti = document.getElementById('themeIcon');
-                if (ti) ti.textContent = '\u2600\ufe0f';
-            }
-            
             // 主题切换 - 最简版本
             var themeBtn = document.getElementById('themeToggleBtn');
             var themeIcon = document.getElementById('themeIcon');
@@ -2908,8 +2900,7 @@ const getHTMLContent = (title) => `
                     try { localStorage.setItem('theme', isLight ? 'light' : 'dark'); } catch(e) {}
                     if (themeIcon) themeIcon.textContent = isLight ? '☀️' : '🌙';
                 };
-            }';
-            });
+            }
             
             // 设置事件监听器
             setupEventListeners();
@@ -7791,7 +7782,7 @@ function getSetupHTML() {
             }
         }
     </script>
-<div style="position:fixed;bottom:0;right:0;background:rgba(0,0,0,0.7);color:#0f0;padding:2px 8px;font-size:11px;z-index:9999;border-radius:4px 0 0 0;">v20261101d</div>
+<div style="position:fixed;bottom:0;right:0;background:rgba(0,0,0,0.7);color:#0f0;padding:2px 8px;font-size:11px;z-index:9999;border-radius:4px 0 0 0;">v20261101f</div>
 </body>
 </html>`;
 }
