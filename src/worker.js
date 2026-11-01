@@ -1825,7 +1825,7 @@ const getHTMLContent = (title) => `
         
         .form-control {
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 10px 15px;
             background-color: rgba(30, 30, 50, 0.9) !important;
             color: white;
@@ -1864,14 +1864,14 @@ const getHTMLContent = (title) => `
         
         .form-select {
             background-color: rgba(30, 30, 50, 0.9) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: white !important;
             border-radius: 10px;
         }
         
         .input-group-text {
             background-color: rgba(30, 30, 50, 0.9) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: white !important;
             border-radius: 10px 0 0 10px;
         }
@@ -2668,6 +2668,15 @@ const getHTMLContent = (title) => `
                             </div>
                             <div class="form-text">将定期发送包含所有域名状态、续费成本和到期清单的汇总通知</div>
                         </div>
+                        
+                        <hr class="my-3">
+                        
+                        <h6 class="mb-3" style="display: flex; align-items: center; gap: 5px;"><i class="iconfont icon-bullhorn" style="color: white;"></i> 分级提醒</h6>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="tieredReminderEnabled" checked>
+                            <label class="form-check-label" for="tieredReminderEnabled">启用分级提醒（30/14/7/3/1天分级通知）</label>
+                        </div>
+                        <div class="form-text">开启后，域名到期前会在 30天、14天、7天、3天、1天 分别发送一次提醒。关闭后仅按"提前通知天数"发送一次提醒。</div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -3596,6 +3605,7 @@ const getHTMLContent = (title) => `
                 document.getElementById('summaryReportEnabled').checked = telegramConfig.summaryReportEnabled || false;
                 document.getElementById('summaryReportSettings').style.display = telegramConfig.summaryReportEnabled ? 'block' : 'none';
                 document.getElementById('summaryReportFrequency').value = telegramConfig.summaryReportFrequency || 'weekly';
+                document.getElementById('tieredReminderEnabled').checked = telegramConfig.tieredReminderEnabled !== false;
                 
                 // 处理聊天ID的显示
                 if (telegramConfig.chatIdFromEnv) {
@@ -3638,6 +3648,7 @@ const getHTMLContent = (title) => `
             const quietHoursEnd = document.getElementById('quietHoursEnd').value || '08:00';
             const summaryReportEnabled = document.getElementById('summaryReportEnabled').checked;
             const summaryReportFrequency = document.getElementById('summaryReportFrequency').value || 'weekly';
+            const tieredReminderEnabled = document.getElementById('tieredReminderEnabled').checked;
             
             try {
                 const response = await fetch('/api/telegram/config', {
@@ -3646,7 +3657,8 @@ const getHTMLContent = (title) => `
                     body: JSON.stringify({
                         enabled, botToken, chatId, notifyDays,
                         quietHoursEnabled, quietHoursStart, quietHoursEnd,
-                        summaryReportEnabled, summaryReportFrequency
+                        summaryReportEnabled, summaryReportFrequency,
+                        tieredReminderEnabled
                     })
                 });
                 
@@ -3826,7 +3838,7 @@ const getHTMLContent = (title) => `
     });
     
     // 将域名分配到不同的分组
-    domains.forEach(domain => {
+    filteredDomains.forEach(domain => {
         // 确保向后兼容：如果域名没有categoryId，根据是否有注册商信息决定分类
         if (!domain.categoryId) {
             if (domain.registrar && domain.registrar.trim() !== '') {
@@ -6578,6 +6590,7 @@ async function getTelegramConfig() {
     quietHoursEnd: config.quietHoursEnd || '08:00',
     summaryReportEnabled: config.summaryReportEnabled || false,
     summaryReportFrequency: config.summaryReportFrequency || 'weekly',
+    tieredReminderEnabled: config.tieredReminderEnabled !== false,
   };
 }
 
@@ -6608,6 +6621,12 @@ async function saveTelegramConfig(configData) {
     botToken: configData.botToken, // 可能为空字符串，表示用户清除了值
     chatId: configData.chatId, // 可能为空字符串，表示用户清除了值
     notifyDays: configData.notifyDays || 30,
+    quietHoursEnabled: configData.quietHoursEnabled || false,
+    quietHoursStart: configData.quietHoursStart || '23:00',
+    quietHoursEnd: configData.quietHoursEnd || '08:00',
+    summaryReportEnabled: configData.summaryReportEnabled || false,
+    summaryReportFrequency: configData.summaryReportFrequency || 'weekly',
+    tieredReminderEnabled: configData.tieredReminderEnabled !== false,
   };
   
   await DOMAIN_MONITOR.put('telegram_config', JSON.stringify(config));
@@ -7027,6 +7046,7 @@ async function checkExpiringDomains() {
   
   // 分级提醒：对每个域名检查它处于哪个提醒级别
   // 每个级别只通知一次，记录在 KV: notify_tier:{domainId} = tier
+  const tieredEnabled = telegramConfig.tieredReminderEnabled !== false;
   const expiringDomains = [];
   const expiredDomains = [];
   const tierUpdates = [];
@@ -7049,27 +7069,37 @@ async function checkExpiringDomains() {
         tierUpdates.push({ key: tierKey, ttl: 86400 * 7 }); // 7天后可以再通知
       }
     } else if (daysLeft <= notifyDays) {
-      // 即将到期 - 找到当前所处的提醒级别
-      let currentTier = null;
-      for (const tier of REMINDER_TIERS) {
-        if (daysLeft <= tier && daysLeft > 0) {
-          currentTier = tier;
-          break;
-        }
-      }
-      if (currentTier === null) continue;
-      
-      // 检查这个级别是否已通知过
-      const tierKey = 'notify_tier:' + domain.id + ':' + currentTier;
-      const alreadyNotified = await DOMAIN_MONITOR.get(tierKey);
-      if (!alreadyNotified) {
-        // 标记更高级别也已通知（避免倒退）
-        for (const t of REMINDER_TIERS) {
-          if (t >= currentTier) {
-            tierUpdates.push({ key: 'notify_tier:' + domain.id + ':' + t, ttl: 86400 * 30 });
+      if (tieredEnabled) {
+        // 分级提醒模式：找到当前所处的提醒级别
+        let currentTier = null;
+        for (const tier of REMINDER_TIERS) {
+          if (daysLeft <= tier && daysLeft > 0) {
+            currentTier = tier;
+            break;
           }
         }
-        expiringDomains.push(domain);
+        if (currentTier === null) continue;
+        
+        // 检查这个级别是否已通知过
+        const tierKey = 'notify_tier:' + domain.id + ':' + currentTier;
+        const alreadyNotified = await DOMAIN_MONITOR.get(tierKey);
+        if (!alreadyNotified) {
+          // 标记更高级别也已通知（避免倒退）
+          for (const t of REMINDER_TIERS) {
+            if (t >= currentTier) {
+              tierUpdates.push({ key: 'notify_tier:' + domain.id + ':' + t, ttl: 86400 * 30 });
+            }
+          }
+          expiringDomains.push(domain);
+        }
+      } else {
+        // 简单提醒模式：只按 notifyDays 通知一次
+        const tierKey = 'notify_tier:' + domain.id + ':simple';
+        const alreadyNotified = await DOMAIN_MONITOR.get(tierKey);
+        if (!alreadyNotified) {
+          expiringDomains.push(domain);
+          tierUpdates.push({ key: tierKey, ttl: 86400 * 30 });
+        }
       }
     }
   }
