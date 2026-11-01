@@ -2895,7 +2895,9 @@ const getHTMLContent = (title) => `
             // 主题切换
             const themeBtn = document.getElementById('themeToggleBtn');
             if (themeBtn) themeBtn.addEventListener('click', function() {
+                console.log('Theme toggle clicked! Current theme:', document.body.classList.contains('light-theme') ? 'light' : 'dark');
                 document.body.classList.toggle('light-theme');
+                console.log('After toggle:', document.body.classList.contains('light-theme') ? 'light' : 'dark');
                 const isLight = document.body.classList.contains('light-theme');
                 localStorage.setItem('theme', isLight ? 'light' : 'dark');
                 const icon = document.getElementById('themeIcon');
@@ -5845,7 +5847,7 @@ async function handleRequest(request) {
       const response = new Response(htmlContent, {
         headers: {
           'Content-Type': 'text/html;charset=UTF-8',
-          'Cache-Control': 'private, max-age=300',
+          'Cache-Control': 'no-cache, must-revalidate',
         },
       });
       
@@ -7782,6 +7784,7 @@ function getSetupHTML() {
             }
         }
     </script>
+<div style="position:fixed;bottom:0;right:0;background:rgba(0,0,0,0.7);color:#0f0;padding:2px 8px;font-size:11px;z-index:9999;border-radius:4px 0 0 0;">v20261101c</div>
 </body>
 </html>`;
 }
