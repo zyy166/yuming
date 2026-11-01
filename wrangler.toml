@@ -1,0 +1,27 @@
+# Cloudflare Workers 域名监控系统
+# wrangler.toml 部署配置
+
+name = "yuming"
+main = "src/worker.js"
+compatibility_date = "2024-09-01"
+
+# KV 命名空间绑定
+# 首次部署时 wrangler 会自动创建；绑定现有 KV 请替换为你的 namespace id
+[[kv_namespaces]]
+binding = "DOMAIN_MONITOR"
+id = ""           # ← 绑定现有 KV：填入你的 KV namespace ID（wrangler kv namespace list 查看）
+preview_id = ""   # ← 本地开发预览用（可选）
+
+# 定时触发器：每天 UTC 0:00（北京时间 8:00）自动检查域名到期
+[triggers]
+crons = ["0 0 * * *"]
+
+# 环境变量（可选，也可在 Cloudflare 控制台设置）
+[vars]
+SITE_NAME = "域名监控系统"
+# TOKEN = ""          # 登录密码，留空默认 "domain"
+# TG_TOKEN = ""       # Telegram Bot Token
+# TG_ID = ""          # Telegram Chat ID
+# LOGO_URL = ""       # 自定义 Logo URL
+# BACKGROUND_URL = "" # 自定义背景图 URL
+# MOBILE_BACKGROUND_URL = "" # 移动端背景图 URL

@@ -1,0 +1,23 @@
+{
+  "name": "yuming",
+  "version": "1.0.0",
+  "description": "域名监控系统 - 基于 Cloudflare Workers + KV 的域名到期监控与通知服务",
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "kv:list": "wrangler kv namespace list",
+    "kv:create": "wrangler kv namespace create DOMAIN_MONITOR"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "domain-monitor",
+    "whois",
+    "telegram-bot",
+    "kv-storage"
+  ],
+  "license": "MIT"
+}
