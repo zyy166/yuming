@@ -2052,6 +2052,7 @@ const getHTMLContent = (title) => `
         }
         
         /* ===== 浅色主题样式 ===== */
+        } /* close @media mobile */
         body.light-theme {
             background-image: none !important;
             background-color: #f0f2f5 !important;
