@@ -3697,6 +3697,7 @@ const getHTMLContent = (title) => `
                 
                 // 为每个域名创建卡片，并按列分配
                 groupDomains.forEach((domain, index) => {
+                    try {
                     // 检测屏幕尺寸，决定分配策略
                     let columnIndex;
                     const isMobile = window.innerWidth < 768; // Bootstrap的md断点
@@ -3967,6 +3968,13 @@ const getHTMLContent = (title) => `
                     
                     // 将卡片添加到对应的列中
                     targetColumn.appendChild(domainCard);
+                    } catch (cardErr) {
+                        console.error('创建域名卡片失败:', domain?.name, cardErr.message, cardErr.stack);
+                        const errCard = document.createElement('div');
+                        errCard.className = 'alert alert-danger';
+                        errCard.textContent = '卡片创建失败: ' + (domain?.name || 'unknown') + ': ' + cardErr.message;
+                        targetColumn.appendChild(errCard);
+                    }
                 });
             };
             
@@ -3975,7 +3983,15 @@ const getHTMLContent = (title) => `
     
     // 按order顺序渲染所有分类（包括默认分类）
     sortedCategories.forEach(category => {
-        renderGroup(category);
+        try {
+            renderGroup(category);
+        } catch (e) {
+            console.error('渲染分类失败:', category.name, e.message, e.stack);
+            const errDiv = document.createElement('div');
+            errDiv.className = 'alert alert-danger';
+            errDiv.textContent = '渲染分类"' + category.name + '"失败: ' + e.message;
+            domainListContainer.appendChild(errDiv);
+        }
     });
             
             // 添加事件监听器
